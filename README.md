@@ -2,7 +2,7 @@
 
 CoffeeShield is a full-stack cross-platform application that provides complete assistance to farmers right from sowing to harvesting.
 
-Some of its features are
+Some of its features are:
 
 🎯 Using ML technology for coffee plant disease detection 
 
