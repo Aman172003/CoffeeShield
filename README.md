@@ -8,8 +8,6 @@ Some of its features are:
 
 🎯 Using Gemini API to know the causes of the particular disease
 
-🎯 Detailed cost analysis of growing crop explaining investment required and potential revenue generated along with suggesting other income sources
-
 🎯 Farmers' community section having chat option, QnA, and many more other features to make our platform interactive
 
 ## Scripts
