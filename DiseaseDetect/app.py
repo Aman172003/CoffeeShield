@@ -11,7 +11,7 @@ app = Flask(__name__)
 CORS(app)
 
 # Load the model
-model = load_model(r'/Users/amanrai/Documents/WebDevelopment/CoffieShield/DiseaseDetect/coffee.h5')
+model = load_model(r'./coffee.h5')
 
 def model_predict(img_path, model):
     test_image = image.load_img(img_path, target_size=(224, 224))

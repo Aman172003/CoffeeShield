@@ -27,7 +27,10 @@ const Crop = () => {
     fd.append('file', selectedFile, selectedFile.name);
 
     try {
-      const res = await axios.post('http://127.0.0.1:5000/predict', fd);
+      const res = await axios.post(
+        'https://coffeeshield.onrender.com/predict',
+        fd
+      );
       console.log(res.data);
       setDiseaseName(res.data.disease_name);
       setData({
