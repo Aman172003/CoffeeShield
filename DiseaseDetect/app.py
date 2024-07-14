@@ -1,31 +1,25 @@
-from flask import Flask,render_template,request, jsonify
+from flask import Flask, request, jsonify
 import numpy as np
 import os
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
 from werkzeug.utils import secure_filename
 from flask_cors import CORS
-# define the flask app
-app=Flask(__name__)
+
+# Define the Flask app
+app = Flask(__name__)
 CORS(app)
-image_path=''
-# load the model
-model=load_model(r'/Users/amanrai/Documents/WebDevelopment/Annadata-master/DiseaseDetect/coffee.h5')
 
-def model_predict(img_path,model):
-    test_image=image.load_img(img_path,target_size=(224,224))
-    test_image=image.img_to_array(test_image)
-    test_image=test_image/255
-    test_image=np.expand_dims(test_image,axis=0)
-    result=model.predict(test_image)
-    image_path=img_path
+# Load the model
+model = load_model(r'/Users/amanrai/Documents/WebDevelopment/CoffieShield/DiseaseDetect/coffee.h5')
+
+def model_predict(img_path, model):
+    test_image = image.load_img(img_path, target_size=(224, 224))
+    test_image = image.img_to_array(test_image)
+    test_image = test_image / 255
+    test_image = np.expand_dims(test_image, axis=0)
+    result = model.predict(test_image)
     return result
-
-
-@app.route('/',methods=['GET'])
-def index():
-    return render_template('index.html')
-
 
 @app.route('/predict', methods=['POST'])
 def upload():
@@ -71,11 +65,5 @@ def upload():
         print(f"Error: {e}")
         return jsonify({"error": str(e)}), 500
 
-
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-
-
-
