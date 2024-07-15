@@ -25,8 +25,15 @@ def model_predict(img_path, model):
 @app.route('/predict', methods=['POST'])
 def upload():
     try:
-        # Get the file from post request
+        # Check if the POST request has the file part
+        if 'file' not in request.files:
+            return jsonify({"error": "No file part in the request"}), 400
+        
         f = request.files['file']
+
+        # If the user does not select a file, the browser may submit an empty part without filename
+        if f.filename == '':
+            return jsonify({"error": "No selected file"}), 400
 
         # Create the uploads folder if it doesn't exist
         basepath = os.path.dirname(__file__)
@@ -54,6 +61,9 @@ def upload():
         # If image path has 'img' or 'IMG', it's not a leaf
         if 'img' in file_path.lower():
             output = 'Not a leaf'
+
+        # Cleanup: remove the uploaded file after prediction
+        os.remove(file_path)
 
         # Return the result as JSON
         return jsonify({
