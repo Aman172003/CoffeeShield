@@ -5,6 +5,7 @@ from tensorflow.keras.preprocessing import image
 from flask_cors import CORS
 import io
 from PIL import Image
+import os
 
 # Define the Flask app
 app = Flask(__name__)
@@ -25,10 +26,19 @@ def model_predict(img, model):
 def upload():
     try:
         # Get the file from post request
+        if 'file' not in request.files:
+            return jsonify({"error": "No file part in the request"}), 400
+        
         file = request.files['file']
         
+        if file.filename == '':
+            return jsonify({"error": "No selected file"}), 400
+
         # Read the image file directly from the request
-        img = Image.open(io.BytesIO(file.read()))
+        try:
+            img = Image.open(io.BytesIO(file.read()))
+        except IOError:
+            return jsonify({"error": "Uploaded file is not a valid image"}), 400
 
         # Make prediction
         result = model_predict(img, model)
