@@ -1,10 +1,10 @@
 from flask import Flask, request, jsonify
 import numpy as np
-import os
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
-from werkzeug.utils import secure_filename
 from flask_cors import CORS
+import io
+from PIL import Image
 
 # Define the Flask app
 app = Flask(__name__)
@@ -13,32 +13,25 @@ CORS(app)
 # Load the model
 model = load_model(r'./coffee.h5')
 
-def model_predict(img_path, model):
-    test_image = image.load_img(img_path, target_size=(224, 224))
-    test_image = image.img_to_array(test_image)
-    test_image = test_image / 255.0
-    test_image = np.expand_dims(test_image, axis=0)
-    result = model.predict(test_image)
+def model_predict(img, model):
+    img = img.resize((224, 224))
+    img_array = image.img_to_array(img)
+    img_array = img_array / 255.0
+    img_array = np.expand_dims(img_array, axis=0)
+    result = model.predict(img_array)
     return result
 
 @app.route('/predict', methods=['POST'])
 def upload():
     try:
         # Get the file from post request
-        f = request.files['file']
-
-        # Create the uploads folder if it doesn't exist
-        basepath = os.path.dirname(__file__)
-        upload_folder = os.path.join(basepath, 'uploads')
-        if not os.path.exists(upload_folder):
-            os.makedirs(upload_folder)
-
-        # Save the file to uploads folder
-        file_path = os.path.join(upload_folder, secure_filename(f.filename))
-        f.save(file_path)
+        file = request.files['file']
+        
+        # Read the image file directly from the request
+        img = Image.open(io.BytesIO(file.read()))
 
         # Make prediction
-        result = model_predict(file_path, model)
+        result = model_predict(img, model)
 
         categories = ['Cercospora', 'Healthy', 'Miner', 'Rust']
 
@@ -50,8 +43,8 @@ def upload():
 
         output = categories[pred_class]
 
-        # If image path has 'img' or 'IMG', it's not a leaf
-        if 'img' in file_path.lower():
+        # If file name has 'img' or 'IMG', it's not a leaf
+        if 'img' in file.filename.lower():
             output = 'Not a leaf'
 
         # Return the result as JSON
@@ -73,4 +66,4 @@ def upload():
 
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
-    app.run(debug=True, port=port)
+    app.run(port=port)
