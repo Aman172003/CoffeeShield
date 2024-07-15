@@ -16,7 +16,7 @@ model = load_model(r'./coffee.h5')
 def model_predict(img_path, model):
     test_image = image.load_img(img_path, target_size=(224, 224))
     test_image = image.img_to_array(test_image)
-    test_image = test_image / 255
+    test_image = test_image / 255.0
     test_image = np.expand_dims(test_image, axis=0)
     result = model.predict(test_image)
     return result
@@ -60,10 +60,17 @@ def upload():
             "disease_name": output,
         })
 
+    except KeyError as e:
+        # Specific error handling for missing file key
+        error_message = f"Missing key in request: {str(e)}"
+        print(f"Error: {error_message}")
+        return jsonify({"error": error_message}), 400
     except Exception as e:
-        # Log the error and return a 500 response with the error message
-        print(f"Error: {e}")
-        return jsonify({"error": str(e)}), 500
+        # General error handling
+        error_message = f"An error occurred: {str(e)}"
+        print(f"Error: {error_message}")
+        return jsonify({"error": error_message}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.getenv('PORT', 5000))
+    app.run(debug=True, port=port)
