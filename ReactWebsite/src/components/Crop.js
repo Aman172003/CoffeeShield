@@ -27,15 +27,12 @@ const Crop = () => {
     fd.append('file', selectedFile, selectedFile.name);
 
     try {
-      const res = await axios.post(
-        'https://coffeeshield.onrender.com/predict',
-        fd
-      );
+      const res = await axios.post('http://127.0.0.1:5000/predict', fd);
       console.log(res.data);
       setDiseaseName(res.data.disease_name);
       setData({
         disease: res.data.disease,
-        disease_name: diseaseName,
+        disease_name: res.data.disease_name, // Fix the reference here
       });
     } catch (error) {
       console.error('There was an error!', error);
@@ -46,17 +43,27 @@ const Crop = () => {
   // Initialize the GoogleGenerativeAI client correctly
   const genAI = new GoogleGenerativeAI(apiKey);
 
-  const knowReason = async () => {
+  const knowReason = async (diseaseName) => {
     try {
       const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
-
-      // Ensure you're using the correct method for generating content
-      const prompt = `List out some of the causes for disease ${diseaseName} in the coffee plant`;
+      // Adjust the prompt to request structured JSON output
+      const prompt = `List out some of the causes for disease ${diseaseName} in the coffee plant. Provide the output in JSON format with keys "cause" and "description". Example:
+      [
+        {
+          "cause": "Fungal Infection",
+          "description": "Caused by excessive moisture and poor air circulation."
+        },
+        {
+          "cause": "Bacterial Infection",
+          "description": "Caused by bacteria that thrive in warm, wet conditions."
+        }
+      ]`;
       const result = await model.generateContent(prompt);
       const response = await result.response;
-      let text = response.text();
-      text = text.replace(/\*/g, '');
-      setCause(text);
+      const text = await response.text();
+      // Parse the JSON response
+      const causes = JSON.parse(text);
+      setCause(causes);
     } catch (error) {
       console.error('Error getting the reason from Gemini', error);
     }
@@ -114,7 +121,10 @@ const Crop = () => {
             )}
             {diseaseName !== 'Healthy' && (
               <div className="text-center">
-                <Button variant="success" onClick={knowReason}>
+                <Button
+                  variant="success"
+                  onClick={() => knowReason(diseaseName)}
+                >
                   Click here to know the reason
                 </Button>
               </div>
@@ -135,13 +145,15 @@ const Crop = () => {
           <Card.Body>
             <div>
               <h2 className="text-center">Causes of {diseaseName}</h2>
-              <p>
-                {cause.split('\n').map((line, index) => (
+              <ul>
+                {cause.map((item, index) => (
                   <li style={{ marginTop: '5px' }} key={index}>
-                    {line}
+                    <strong>Cause:</strong> {item.cause}
+                    <br />
+                    <strong>Description:</strong> {item.description}
                   </li>
                 ))}
-              </p>
+              </ul>
             </div>
           </Card.Body>
         </Card>
