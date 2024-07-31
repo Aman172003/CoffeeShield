@@ -11,7 +11,8 @@ import {
 } from 'reactstrap';
 
 import { connect } from 'react-redux';
-import { addInfo } from '../actions/infoActions';
+import { addInfo } from '../actions/infoActions'; // Import addQuestion
+import { addQuestion } from '../actions/questionActions';
 import PropTypes from 'prop-types';
 
 class QuestionModal extends React.Component {
@@ -53,7 +54,7 @@ class QuestionModal extends React.Component {
       phone: this.state.phone,
     };
 
-    // Add item via addItem action
+    // Add item via addQuestion action
     this.props.addQuestion(newQuestion);
 
     this.questionToggle();
@@ -69,8 +70,7 @@ class QuestionModal extends React.Component {
       phone: this.state.phone,
     };
 
-    // Add item via addItem action
-
+    // Add item via addInfo action
     this.props.addInfo(newInfo);
 
     this.infoToggle();
@@ -154,7 +154,7 @@ class QuestionModal extends React.Component {
                   type="text"
                   name="phone"
                   id="phone"
-                  placeholder="For further commuication"
+                  placeholder="For further communication"
                   onChange={this.onChange}
                   style={{ marginBottom: '1rem' }}
                 />
@@ -209,13 +209,13 @@ class QuestionModal extends React.Component {
                   type="text"
                   name="phone"
                   id="phone"
-                  placeholder="For further commuication"
+                  placeholder="For further communication"
                   onChange={this.onChange}
                   style={{ marginBottom: '1rem' }}
                 />
 
                 <Button color="dark" style={{ marginTop: '2rem' }} block>
-                  Ask
+                  Share
                 </Button>
               </FormGroup>
             </Form>
@@ -232,4 +232,6 @@ const mapStateToProps = (state) => ({
   isAuthenticated: state.auth.isAuthenticated,
 });
 
-export default connect(mapStateToProps, { addInfo })(QuestionModal);
+export default connect(mapStateToProps, { addInfo, addQuestion })(
+  QuestionModal
+);
